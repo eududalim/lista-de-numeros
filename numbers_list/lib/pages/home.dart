@@ -1,3 +1,6 @@
+import 'dart:developer';
+import 'dart:html';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
@@ -18,53 +21,23 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Lista de numéros'),
+        title: Text('Lista de números'),
         actions: [
-          FlatButton.icon(
+          TextButton.icon(
               onPressed: () {
                 final _numbersControler = TextEditingController();
                 final _qtdControler = TextEditingController();
                 showCupertinoDialog(
-                    builder: (context) => Column(
-                      mainAxisSize: ,
-                          children: [
-                            Text('Digite o primeiro número com DDD'),
-                            TextField(
-                              controller: _numbersControler,
-                              inputFormatters: [_numberMask],
-                              keyboardType: TextInputType.phone,
-                              decoration:
-                                  InputDecoration(hintText: '(##) # ####-####'),
-                            ),
-                            SizedBox(height: 10),
-                            Text('Quantidade'),
-                            TextField(
-                              keyboardType: TextInputType.number,
-                              controller: _qtdControler,
-                              decoration: InputDecoration(hintText: '20'),
-                            ),
-                            SizedBox(height: 10),
-                            ElevatedButton(
-                                onPressed: () {
-                                  final _qtd = _qtdControler.value.text;
-                                  final _phone = _numbersControler.value.text;
-
-                                  debugPrint(
-                                      '::   Quantidade: $_qtd \n Numero: $_phone');
-
-                                  if (_qtd.isNotEmpty || _qtd == '') {
-                                    try {
-                                      if (_phone.isNotEmpty ||
-                                          _phone.length >= 10) {}
-                                    } catch (e) {}
-                                  }
-                                },
-                                child: Text('Gerar lista'))
-                          ],
-                        ), context: context;
+                    context: context,
+                    builder: (context) =>
+                        showDialog(_numbersControler, _qtdControler));
               },
-              icon: Icon(Icons.add_call),
-              label: Text('Adicionar novos números'))
+              icon: Icon(
+                Icons.add_call,
+                color: Colors.white,
+              ),
+              label: Text('Adicionar novos números',
+                  style: TextStyle(color: Colors.white)))
         ],
       ),
       body: ListView.builder(
@@ -73,8 +46,84 @@ class _HomePageState extends State<HomePage> {
             String number = numbersList[index];
             return ListTile(
               leading: Text(number),
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                      onPressed: () {},
+                      icon: Icon(
+                        Icons.call_rounded,
+                        color: Theme.of(context).primaryColor,
+                      )),
+                  SizedBox(width: 10),
+                  IconButton(
+                      onPressed: () {},
+                      icon: Icon(
+                        Icons.phone_android,
+                        color: Theme.of(context).primaryColor,
+                      ))
+                ],
+              ),
             );
           }),
     );
+  }
+
+  Material showDialog(TextEditingController _numbersControler,
+      TextEditingController _qtdControler) {
+    return Material(
+        child: Dialog(
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Primeiro número da lista'),
+            TextField(
+              controller: _numbersControler,
+              inputFormatters: [_numberMask],
+              keyboardType: TextInputType.phone,
+              decoration: InputDecoration(hintText: '(##) # ####-####'),
+            ),
+            SizedBox(height: 30),
+            Text('Quantidade'),
+            TextField(
+              keyboardType: TextInputType.number,
+              controller: _qtdControler,
+              decoration: InputDecoration(hintText: '20'),
+            ),
+            SizedBox(height: 10),
+            ElevatedButton(
+                onPressed: () {
+                  final _qtd = _qtdControler.value.text;
+                  String _phone = _numbersControler.value.text;
+
+                  var _phoneNum = double.parse(_phone.substring(12));
+
+                  if (_qtd.isNotEmpty || _qtd == '') {
+                    if (_phone.length == 16) {
+                      List<String> _list = [];
+
+                      for (var i = 0; i < int.parse(_qtd); i++) {
+                        _list.add(
+                            _phone.substring(0, 12) + _phoneNum.toString());
+                        _phoneNum++;
+                      }
+
+                      setState(() {
+                        numbersList = _list;
+                      });
+
+                      Navigator.of(context).pop();
+                    }
+                  }
+                },
+                child: Text('Gerar lista'))
+          ],
+        ),
+      ),
+    ));
   }
 }
