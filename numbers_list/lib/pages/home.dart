@@ -1,5 +1,4 @@
-import 'dart:html';
-
+import 'dart:developer';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
@@ -13,7 +12,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  List<String> numbersList = ['123456789', '55555555', '88888888'];
+  List<String> numbersList = [];
   final _numberMask = MaskTextInputFormatter(
       mask: '(##) # ####-####', filter: {"#": RegExp(r'[0-9]')});
 
@@ -27,6 +26,7 @@ class _HomePageState extends State<HomePage> {
               onPressed: () {
                 final _numbersControler = TextEditingController();
                 final _qtdControler = TextEditingController();
+
                 showCupertinoDialog(
                     context: context,
                     builder: (context) =>
@@ -36,7 +36,7 @@ class _HomePageState extends State<HomePage> {
                 Icons.add_call,
                 color: Colors.white,
               ),
-              label: Text('Adicionar novos números',
+              label: Text('Gerar nova lista',
                   style: TextStyle(color: Colors.white)))
         ],
       ),
@@ -65,6 +65,7 @@ class _HomePageState extends State<HomePage> {
                         try {
                           WhatsAppApi.abrirWhatsApp(number);
                         } catch (e) {
+                          log(e.toString());
                           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                               content: Text('Aplicativo não encontrado')));
                         }
@@ -87,10 +88,10 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Material showDialog(TextEditingController _numbersControler,
+  showDialog(TextEditingController _numbersControler,
       TextEditingController _qtdControler) {
-    return Material(
-        child: Dialog(
+    return Scaffold(
+        body: Dialog(
       child: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Column(
@@ -118,10 +119,10 @@ class _HomePageState extends State<HomePage> {
                   final _qtd = _qtdControler.value.text;
                   String _phone = _numbersControler.value.text;
 
-                  var _phoneNum = double.parse(_phone.substring(12));
-
-                  if (_qtd.isNotEmpty || _qtd == '') {
+                  if (_qtd.isNotEmpty || _qtd != '') {
                     if (_phone.length == 16) {
+                      var _phoneNum = int.parse(_phone.substring(12));
+
                       List<String> _list = [];
 
                       for (var i = 0; i < int.parse(_qtd); i++) {
@@ -137,6 +138,8 @@ class _HomePageState extends State<HomePage> {
                       Navigator.of(context).pop();
                     }
                   }
+                  ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Insira os dados corretamente')));
                 },
                 child: Text('Gerar lista'))
           ],
